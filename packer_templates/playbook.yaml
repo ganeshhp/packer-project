@@ -1,0 +1,15 @@
+- hosts: all 
+  become: true
+  connection: local
+  tasks:
+    - name: installing nginx
+      apt: 
+        name: nginx
+        update_cache: yes
+        state: present
+    - name: starting Nginx at start
+      service:
+        name: nginx
+        enabled: true
+        state: started
+

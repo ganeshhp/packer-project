@@ -1,0 +1,33 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "us-east-1",
+      "instance_type": "t2.micro",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "*Windows_Server-2012*English-64Bit-Base*",
+          "root-device-type": "ebs"
+        },
+        "most_recent": true,
+        "owners": "amazon"
+      },
+      "ami_name": "default-packer",
+      "user_data_file": "./boot_config/winrm_bootstrap.txt",
+      "communicator": "winrm",
+      "force_deregister": true,
+      "winrm_insecure": true,
+      "winrm_username": "Administrator",
+      "winrm_use_ssl": true
+    }
+  ]
+}
+
+{
+  "type": "powershell",
+  "inline": [
+    "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/InitializeInstance.ps1 -Schedule",
+    "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/SysprepInstance.ps1 -NoShutdown"
+  ]
+}

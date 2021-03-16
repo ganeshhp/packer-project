@@ -1,0 +1,108 @@
+{   "variables": {
+            "ami_id": "ami-02aa7f3de34db391a"
+    },
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "region": "us-east-2",
+            "source_ami": "{{user `ami_id`}}",
+            "instance_type": "t2.micro",
+            "ssh_username": "ubuntu",
+            "ami_name": "MiddleTier-1",
+            "ami_description": "AMI created for testing purpose",
+            "tags": {
+                "role": "MiddileTier"
+            },
+            "run_tags": {
+                "role": "buildSystem"
+            }
+        },
+
+       {
+            "type": "virtualbox-iso",
+            "boot_command": 
+            [
+                "<esc><wait>",
+                "<esc><wait>",
+                "<enter><wait>",
+                " /install/vmlinuz<wait>",
+                " auto<wait>",
+                " console-setup/ask_detect=false<wait>",
+                " console-setup/layoutcode=us<wait>",
+                " console-setup/modelcode=pc105<wait>",
+                " debian-installer=en_US<wait>",
+                " fb=false<wait>",
+                " initrd=/install/initrd.gz<wait>",
+                " kbd-chooser/method=us<wait>",
+                " keyboard-configuration/layout=USA<wait>",
+                " keyboard-configuration/variant=USA<wait>",
+                " locale=en_US<wait>",
+                " netcfg/get_hostname=vm<wait>",
+                " netcfg/get_domain=plusforum.in<wait>",
+                " noapic<wait>",
+                " preseed/url=http:{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
+
+                " -- <wait>",
+                "<enter><wait>"
+            ],
+            "boot_wait": "20s",
+            "iso_url": "http://releases.ubuntu.com/16.04/ubuntu-16.04.7-server-amd64.iso",
+            "iso_checksum_type": "md5",
+            "iso_checksum": "md5:ac8a79a86a905ebdc3ef3f5dd16b7360",
+            "guest_os_type": "Ubuntu_64",
+            "http_directory": "http",
+            "ssh_username": "packer",
+            "ssh_password": "packer",
+            "ssh_wait_timeout": "10000s",
+            "shutdown_command": "sudo -S shutdown -P now",
+            "vm_name": "nginx-test",
+            "vboxmanage": [
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--cpus",
+                    "2"
+                ],
+                [
+                    "modifyvm",
+                    "{{.Name}}",
+                    "--memory",
+                    "1024"
+                ]
+            ],
+            "headless": "false"
+        }
+
+    ],
+
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "scripts/virtualbox.sh",
+            "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "only": "virtualbox-iso"
+        },
+        
+        {
+            "type": "shell",
+            "script": "scripts/ansible.sh"    
+        },
+
+        {
+            "type": "ansible-local",
+            "playbook_file": "./playbook.yaml"
+
+        },
+        {
+            "type": "file",
+            "source": "Upload/",
+            "destination": "/tmp"
+        },
+       
+    ],
+
+    "post-processors": [
+
+    ]
+
+}

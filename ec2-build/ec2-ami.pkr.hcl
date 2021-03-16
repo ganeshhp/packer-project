@@ -1,7 +1,3 @@
-# If you don't set a default, then you will need to provide the variable
-# at run time using the command line, or set it in the environment. For more
-# information about the various options for setting variables, see the template
-# [reference documentation](https://www.packer.io/docs/templates)
 variable "ami_name" {
   type    = string
   default = "plusf-ami"
@@ -29,10 +25,25 @@ source "amazon-ebs" "instance-1" {
   }
   ssh_username = "ubuntu"
 }
-
-# a build block invokes sources and runs provisioning steps on them.
 build {
   sources = ["source.amazon-ebs.instance-1"]
+    provisioner "shell" {
+    inline = [
+      "sudo apt-get update",
+      "sudo apt-get install software-properties-common -y",
+      "sudo apt-get install nginx -y",
+      "service nginx start",
+      ]
+    }
 
+  #  provisioner "file" {
+  #    source = "./playbook.yml"
+  #    destination = "/tmp/playbook.yml"
+  #  }
+
+  #  provisioner "ansible-local" {
+  #    playbook_file   = "./playbook.yml"
+  #  
+  #  }
+     
 }
-
