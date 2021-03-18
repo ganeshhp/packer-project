@@ -1,6 +1,21 @@
 variable "password" {
         default = "replace_with_password"
 }
+variable "username" {
+	default = "replace_with_username"
+}
+variable "repo1" {
+	default = "ganeshhp/ubuntu"
+}
+variable "repo1-tag" {
+        default = "16.04"
+}
+variable "repo2" {
+	default = "ganeshhp/centos"
+}
+variable "repo2-tag" {
+	default = "latest"
+}
 
 source "docker" "ubuntu_custom" {
     image = "ubuntu:xenial"
@@ -56,18 +71,18 @@ build {
 
     post-processor "docker-push" {
         login = true
-        login_username = "ganeshhp"
+        login_username = "${var.username}"
         login_password = "${var.password}"
       }
 
     post-processor "docker-import" {
-        repository =  "ganeshhp/ubuntu-custom"
-        tag = "16.04"
+        repository =  "${var.repo1}"
+        tag = "${var.repo1-tag}"
         only = ["docker.ubuntu_custom"]
       }
     post-processor "docker-import" {
-        repository =  "ganeshhp/centos-custom"
-        tag = "latest"
+        repository =  "${var.repo2}"
+        tag = "${var.repo2-tag}"
         only = ["docker.centos_custom"]
       }
   }
