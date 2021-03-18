@@ -1,4 +1,12 @@
 
+variable "WinRMPassword" {
+  type  = string
+  default = "P@ssW0rd"
+  sensitive = true
+}
+
+#"sensitive-variables": ["WinRMPassword"]
+
 #data "amazon-ami" "example" {
 #  filters = {
 #    virtualization-type = "hvm"
@@ -28,7 +36,7 @@ source "amazon-ebs" "winrm-example" {
     
 } 
   instance_type =  "t2.small"
-  ami_name =  "packer_winrm_example {{timestamp}}"
+  ami_name =  "packer_build {{timestamp}}"
   # This user data file sets up winrm and configures it so that the connection
   # from Packer is allowed. Without this file being set, Packer will not
   # connect to the instance.
@@ -37,21 +45,24 @@ source "amazon-ebs" "winrm-example" {
   force_deregister = true
   winrm_insecure = true
   winrm_username = "Administrator"
+  winrm_password = "${var.WinRMPassword}"
   winrm_use_ssl = true
 }
-
 build {
   sources = [
     "source.amazon-ebs.winrm-example"
   ]
- 
-  provisioner "windows-restart" {
-  }
- 
   provisioner "powershell" {
     inline = [
       "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/InitializeInstance.ps1 -Schedule",
       "C:/ProgramData/Amazon/EC2-Windows/Launch/Scripts/SysprepInstance.ps1 -NoShutdown"
     ]
+  }
+  provisioner "windows-restart" {
+  }
+  provisioner "windows-update" {
+    filters = [ "exclude:$_.Title -like '*Preview*'", "include:$true" ]
+    search_criteria = "IsInstalled=0"
+    update_limit = 25
   }
 }
