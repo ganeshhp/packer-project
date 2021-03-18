@@ -1,7 +1,4 @@
-# If you don't set a default, then you will need to provide the variable
-# at run time using the command line, or set it in the environment. For more
-# information about the various options for setting variables, see the template
-# [reference documentation](https://www.packer.io/docs/templates)
+
 variable "ami_name" {
   type    = string
   default = "plusf-ami"
@@ -18,17 +15,17 @@ variable "ssh_pass" {
     type = "string"
     default = packer
 }
+variable "region" {
+    default = "us-east-2"
+}
 
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
-# source blocks configure your builder plugins; your source is then used inside
-# build blocks to create resources. A build block runs provisioners and
-# post-processors on an instance created by the source.
 source "amazon-ebs" "instance-1" {
 #  access_key    = "${var.aws_access_key_id}"
   ami_name      = "packer-plus${local.timestamp}"
   instance_type = "t2.micro"
-  region        = "us-east-1"
+  region        = "${var.region}"
 #  secret_key    = "${var.aws_secret_access_key}"
   source_ami_filter {
     filters = {

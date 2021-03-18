@@ -2,17 +2,20 @@ variable "ami_name" {
   type    = string
   default = "plusf-ami"
 }
+variable "region" {
+  type	= string
+  default = "us-east-2"
+}
+
 
 locals { timestamp = regex_replace(timestamp(), "[- TZ:]", "") }
 
-# source blocks configure your builder plugins; your source is then used inside
-# build blocks to create resources. A build block runs provisioners and
-# post-processors on an instance created by the source.
 source "amazon-ebs" "instance-1" {
 #  access_key    = "${var.aws_access_key_id}"
-  ami_name      = "packer-plus${local.timestamp}"
+#  ami_name      = "packer-plus${local.timestamp}"
+  ami_name	= "${var.ami_name}"
   instance_type = "t2.micro"
-  region        = "us-east-1"
+  region        = "${var.region}"
 #  secret_key    = "${var.aws_secret_access_key}"
   source_ami_filter {
     filters = {
