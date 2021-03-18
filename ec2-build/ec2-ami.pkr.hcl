@@ -2,7 +2,10 @@ variable "ami_name" {
   type    = string
   default = "plusf-ami"
 }
-
+variable "region" {
+  type	= string
+  default = "us-east-2"
+}
 variable "region" {
   type  = string
   default = "us-east-2"
